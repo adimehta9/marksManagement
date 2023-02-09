@@ -8,6 +8,7 @@ import javafx.scene.control.Label
 import javafx.scene.control.Separator
 import javafx.scene.layout.HBox
 import javafx.scene.text.Font
+import kotlin.math.round
 
 class StatusBarView(private val model: Model): HBox(), InvalidationListener {
     override fun invalidated(observable: Observable?) {
@@ -33,7 +34,7 @@ class StatusBarView(private val model: Model): HBox(), InvalidationListener {
 
         children.clear()
         children.addAll(Label("Course Average: ${if(courseCount == 0) 
-            "n/a" else (gradeTotal/courseCount).toString()}").apply{font = Font.font(12.0) },
+            "n/a" else (round(gradeTotal/courseCount * 100.0)/100.0).toString()}").apply{font = Font.font(12.0) },
             Separator().apply { orientation = Orientation.VERTICAL },
             Label("Courses Taken: $courseCount").apply{font = Font.font(12.0)},
             Separator().apply{orientation = Orientation.VERTICAL},
