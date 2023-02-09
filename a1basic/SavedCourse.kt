@@ -11,6 +11,7 @@ import javafx.scene.layout.BackgroundFill
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import javafx.scene.paint.Color
+import javafx.scene.shape.Rectangle
 
 
 // Display for each course within the Course list
@@ -70,7 +71,7 @@ class SavedCourse(model: Model, id: String, name: String, t: String, g: String):
         onAction = EventHandler {
             if(text == "Delete") model.removeCourse(courseID.text)
             else {
-                // must be undo -> revert values back
+                // must become undo -> revert values back
                 // make button delete again, and disable update button
                 courseName.text = model.getCourses()[courseID.text]?.name
                 term.value = model.getCourses()[courseID.text]?.term
@@ -94,6 +95,8 @@ class SavedCourse(model: Model, id: String, name: String, t: String, g: String):
                isDisable = true
            } catch(nfe:NumberFormatException) {
                println("Invalid Input")
+           } catch (e: Exception) {
+               println(e.message)
            }
         }
     }
