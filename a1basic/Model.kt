@@ -36,7 +36,14 @@ class Model: Observable {
     }
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    private var courses = mutableMapOf<String, Course>()
+    //private var courses = mutableMapOf<String, Course>()
+    private var courses = mutableMapOf<String, Course>("CS135" to Course("CS135", "", "F21", "wd"),
+                                                        "BU111" to Course("BU111", "", "F21", "70"),
+                                                        "EC120" to Course("EC120", "", "F20", "78"),
+                                                        "PD1" to Course("PD1", "", "S23", "wd"),
+                                                        "math 135" to Course("math 135", "", "W22", "12"),
+                                                        "math 239" to Course("math 239", "", "W23", "wd"),
+                                                        "CO 350" to Course("CO 350", "", "F22", "90"))
     private var curFilter: String = ""
     private var curWD: Boolean = true
 
@@ -49,22 +56,25 @@ class Model: Observable {
             courses[id]!!.grade = grade
             sortCourse(curSort, curFilter, curWD)
             listeners.forEach{it?.invalidated(this)}
+        } else {
+            throw Exception("Invalid Grade")
         }
     }
 
     // sort and filters courses depending on user's input
     fun sortCourse(sort: String, filter: String, wd: Boolean) {
-        //curSort = sort
+        curSort = sort
         curFilter = filter
-        curWD = wd
-        if(curSort != sort) {
-            curSort = sort
+        //curWD = wd
+        if(curWD == wd) {
             courses = if (curSort == "Grade Descending") {
                 courses.toList().sortedBy { (_, value) -> value }.reversed().toMap().toMutableMap()
             } else {
                 courses.toList().sortedBy { (_, value) -> value }.toMap().toMutableMap()
             }
         }
+
+        curWD = wd
 
         courses.forEach {
             if(wd) it.value.show = true
@@ -75,11 +85,11 @@ class Model: Observable {
             "All Courses" -> courses.forEach { it.value.show = it.value.show }
             "CS Courses Only" -> courses.forEach{ it.value.show = it.value.show && it.key.substring(0, 2).lowercase() == "cs" }
             "Math Courses Only" -> courses.forEach { it.value.show = it.value.show && (it.key.substring(0, 2).lowercase() == "cs" ||
-                    it.key.substring(0, 2).lowercase() == "co" || it.key.substring(0, 4).lowercase() == "math" ||
-                    it.key.substring(0, 4).lowercase() == "stat")}
+                    it.key.substring(0, 2).lowercase() == "co" || (it.key.length >= 4 && it.key.substring(0, 4).lowercase() == "math") ||
+                    (it.key.length >= 4 && it.key.substring(0, 4).lowercase() == "stat"))}
             else -> courses.forEach { it.value.show = it.value.show && !(it.key.substring(0, 2).lowercase() == "cs" ||
-                    it.key.substring(0, 2).lowercase() == "co" || it.key.substring(0, 4).lowercase() == "math" ||
-                    it.key.substring(0, 3).lowercase() == "stat") }
+                    it.key.substring(0, 2).lowercase() == "co" || (it.key.length >= 4 && it.key.substring(0, 4).lowercase() == "math") ||
+                    (it.key.length >= 4 && it.key.substring(0, 4).lowercase() == "stat")) }
         }
 
 
@@ -99,6 +109,8 @@ class Model: Observable {
             courses[id] = Course(id, name, term, grade)
             sortCourse(curSort, curFilter, curWD)
             listeners.forEach { it?.invalidated(this) }
+        } else {
+            throw Exception("Not valid id or grade")
         }
     }
 
