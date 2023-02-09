@@ -10,6 +10,7 @@ import javafx.scene.layout.BackgroundFill
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import javafx.scene.paint.Color
+import java.lang.Exception
 import java.lang.NullPointerException
 
 
@@ -56,9 +57,13 @@ class BottomToolBar(model: Model): HBox() {
                 term.value = null
                 grade.text = ""
             } catch(nfe:NumberFormatException) {
+                grade.text = "!"
                 println("Grade wasn't WD or number")
             } catch(npe: NullPointerException) {
                 println("Term not selected")
+            } catch(e: Exception) {
+                grade.text = "!"
+                println(e.message)
             }
         }
     }
