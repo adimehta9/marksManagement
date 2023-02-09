@@ -8,6 +8,10 @@ import javafx.beans.Observable
 class Course(val id: String, var name: String, var term: String, var grade: String):Comparable<Course> {
     var show: Boolean = true
 
+    companion object {
+        var curSort: String = "Course Code"
+    }
+
     //Override CompareTo for sort algorithm
     override fun compareTo(other: Course): Int = when {
         curSort == "Course Code" -> compareValues(id.lowercase(), other.id.lowercase())
@@ -23,7 +27,7 @@ class Course(val id: String, var name: String, var term: String, var grade: Stri
 }
 
 
-var curSort: String = "Course Code"
+//var curSort: String = "Course Code"
 
 class Model: Observable {
     /////////////////////////////////////////  ALL LISTENER INFORMATION //////////////////////////////////////////////
@@ -54,7 +58,7 @@ class Model: Observable {
             courses[id]!!.name = name
             courses[id]!!.term = term
             courses[id]!!.grade = grade
-            sortCourse(curSort, curFilter, curWD)
+            sortCourse(Course.curSort, curFilter, curWD)
             listeners.forEach{it?.invalidated(this)}
         } else {
             throw Exception("Invalid Grade")
@@ -63,11 +67,11 @@ class Model: Observable {
 
     // sort and filters courses depending on user's input
     fun sortCourse(sort: String, filter: String, wd: Boolean) {
-        curSort = sort
+        Course.curSort = sort
         curFilter = filter
         //curWD = wd
         if(curWD == wd) {
-            courses = if (curSort == "Grade Descending") {
+            courses = if (Course.curSort == "Grade Descending") {
                 courses.toList().sortedBy { (_, value) -> value }.reversed().toMap().toMutableMap()
             } else {
                 courses.toList().sortedBy { (_, value) -> value }.toMap().toMutableMap()
@@ -107,7 +111,7 @@ class Model: Observable {
     fun addCourse(id: String, name: String, term: String, grade: String) {
         if(id != "" && (grade.uppercase() == "WD" || grade.toInt() in 0..100)) {
             courses[id] = Course(id, name, term, grade)
-            sortCourse(curSort, curFilter, curWD)
+            sortCourse(Course.curSort, curFilter, curWD)
             listeners.forEach { it?.invalidated(this) }
         } else {
             throw Exception("Not valid id or grade")

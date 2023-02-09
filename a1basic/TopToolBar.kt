@@ -66,10 +66,9 @@ class TopToolBar(model: Model): HBox() {
 
     init {
         children.addAll(sort, filter, wd)
+        Course.curSort = sortBox.value
         model.setCurFilter(filterBox.value)
         model.setCurWD(wd.isSelected)
     }
-
-
 
 }
