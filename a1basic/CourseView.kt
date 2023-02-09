@@ -23,6 +23,7 @@ class CourseView(private val model: Model): VBox(), InvalidationListener {
             if(it.value.show) {
                 children.add(SavedCourse(model, it.value.id, it.value.name, it.value.term, it.value.grade)).apply {
                     padding = Insets(5.0)
+                    spacing = 5.0
                 }
             }
         }
