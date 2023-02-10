@@ -1,17 +1,14 @@
-package com.example.a1basic
+package com.example.a1enhanced
+
 
 import javafx.event.EventHandler
 import javafx.geometry.Insets
 import javafx.scene.control.Button
 import javafx.scene.control.ChoiceBox
 import javafx.scene.control.TextField
-import javafx.scene.layout.Background
-import javafx.scene.layout.BackgroundFill
-import javafx.scene.layout.HBox
-import javafx.scene.layout.Priority
+import javafx.scene.layout.*
 import javafx.scene.paint.Color
-import java.lang.Exception
-import java.lang.NullPointerException
+import javafx.scene.paint.Paint
 
 
 class BottomToolBar(model: Model): HBox() {
@@ -39,7 +36,7 @@ class BottomToolBar(model: Model): HBox() {
 
     // Grade of the course about to be added (can be WD)
     private val grade: TextField = TextField().apply{
-        prefWidth = 40.0
+        prefWidth = 45.0
         prefHeight = 5.0
     }
 
@@ -51,26 +48,74 @@ class BottomToolBar(model: Model): HBox() {
         onAction = EventHandler {
             // makes sure id, value and grade aren't empty, and grade either WD or 0 ≤..≤ 100
             try {
-                model.addCourse(courseID.text, courseName.text, term.value, grade.text)
+                println("term.value is " + courseID.text)
+                model.addCourse(courseID.text, courseName.text, term.value ?: "", grade.text)
                 courseID.text = ""
                 courseName.text = ""
                 term.value = null
                 grade.text = ""
+
+                courseID.border = Border(BorderStroke(null, null, null, null))
+                term.border = Border(BorderStroke(null, null, null, null))
+                grade.border = Border(BorderStroke(null, null, null, null))
+
+
             } catch(nfe:NumberFormatException) {
-                grade.text = "!"
-                println("Grade wasn't WD or number")
-            } catch(npe: NullPointerException) {
-                println("Term not selected")
-            } catch(e: Exception) {
-                grade.text = "!"
-                println(e.message)
+                // Grade was not a number or WD
+                println("Number format")
+                grade.border = Border(BorderStroke(Paint.valueOf("ff0000"), BorderStrokeStyle.SOLID, CornerRadii(0.0), BorderWidths(2.0)))
+                if(courseID.text == "") courseID.border = Border(BorderStroke(Paint.valueOf("ff0000"), BorderStrokeStyle.SOLID, CornerRadii(0.0), BorderWidths(2.0)))
+                else courseID.border = Border(BorderStroke(null, null, null, null))
+                if(term.value == null) term.border = Border(BorderStroke(Paint.valueOf("ff0000"), BorderStrokeStyle.SOLID, CornerRadii(0.0), BorderWidths(2.0)))
+                else term.border = Border(BorderStroke(null, null, null, null))
+
+            } catch(e: CourseException) {
+
+                if(!e.idValid) {
+                    courseID.border = Border(
+                        BorderStroke(
+                            Paint.valueOf("ff0000"),
+                            BorderStrokeStyle.SOLID,
+                            CornerRadii(0.0),
+                            BorderWidths(2.0)
+                        )
+                    )
+                } else {
+                    courseID.border = Border(BorderStroke(null, null, null, null))
+                }
+
+                if(!e.termValid) {
+                    term.border = Border(
+                        BorderStroke(
+                            Paint.valueOf("ff0000"),
+                            BorderStrokeStyle.SOLID,
+                            CornerRadii(0.0),
+                            BorderWidths(2.0)
+                        )
+                    )
+                } else {
+                    term.border = Border(BorderStroke(null, null, null, null))
+                }
+
+                if(!e.gradeValid) {
+                    grade.border = Border(
+                        BorderStroke(
+                            Paint.valueOf("ff0000"),
+                            BorderStrokeStyle.SOLID,
+                            CornerRadii(0.0),
+                            BorderWidths(2.0)
+                        )
+                    )
+                } else {
+                    grade.border = Border(BorderStroke(null, null, null, null))
+                }
             }
         }
     }
 
     init{
         children.addAll(courseID, courseName, term, grade, create)
-        background = Background(BackgroundFill(Color.LIGHTGRAY, null, null))
+        background = Background(BackgroundFill(Color.LIGHTGRAY, CornerRadii(7.0), null))
         padding = Insets(10.0)
         spacing = 10.0
     }

@@ -1,16 +1,13 @@
-package com.example.a1basic
-
+package com.example.a1enhanced
 import javafx.event.EventHandler
 import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.control.Button
 import javafx.scene.control.ChoiceBox
 import javafx.scene.control.TextField
-import javafx.scene.layout.Background
-import javafx.scene.layout.BackgroundFill
-import javafx.scene.layout.HBox
-import javafx.scene.layout.Priority
+import javafx.scene.layout.*
 import javafx.scene.paint.Color
+import javafx.scene.paint.Paint
 import javafx.scene.shape.Rectangle
 
 
@@ -27,7 +24,7 @@ class SavedCourse(model: Model, id: String, name: String, t: String, g: String):
     }
 
     // name of the course
-     private val courseName: TextField = TextField().apply{
+    private val courseName: TextField = TextField().apply{
         text = name
         prefWidth = 300.0
         prefHeight = 5.0
@@ -53,7 +50,7 @@ class SavedCourse(model: Model, id: String, name: String, t: String, g: String):
     // grade of the course
     private val grade: TextField = TextField().apply {
         text = g
-        prefWidth = 40.0
+        prefWidth = 45.0
         prefHeight = 5.0
         onKeyTyped = EventHandler {
             // upon change
@@ -78,6 +75,7 @@ class SavedCourse(model: Model, id: String, name: String, t: String, g: String):
                 grade.text = model.getCourses()[courseID.text]?.grade
                 text = "Delete"
                 update.isDisable = true
+                grade.border = Border(BorderStroke(null, null, null, null))
             }
         }
     }
@@ -93,10 +91,13 @@ class SavedCourse(model: Model, id: String, name: String, t: String, g: String):
                model.updateCourse(courseID.text, courseName.text, term.value, grade.text)
                delOrUndo.text = "Delete"
                isDisable = true
+               grade.border = Border(BorderStroke(null, null, null, null))
            } catch(nfe:NumberFormatException) {
-               println("Invalid Input")
+               // Grade was not a number of WD
+               grade.border = Border(BorderStroke(Paint.valueOf("ff0000"), BorderStrokeStyle.SOLID, CornerRadii(0.0), BorderWidths(2.0)))
            } catch (e: Exception) {
-               println(e.message)
+               // Grade was not within the 0..100
+               grade.border = Border(BorderStroke(Paint.valueOf("ff0000"), BorderStrokeStyle.SOLID, CornerRadii(0.0), BorderWidths(2.0)))
            }
         }
     }
@@ -113,11 +114,13 @@ class SavedCourse(model: Model, id: String, name: String, t: String, g: String):
 
     init{
         children.addAll(courseID, courseName, term, grade, update, delOrUndo).apply {
-            background = Background(BackgroundFill(c, null, null))
+            background = Background(BackgroundFill(c, CornerRadii(7.0), null))
             spacing = 10.0
             padding = Insets(10.0)
             HBox.setHgrow(courseName, Priority.ALWAYS)
         }
+
+        prefHeight = 15.0
 
 
 

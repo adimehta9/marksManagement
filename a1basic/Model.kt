@@ -1,5 +1,4 @@
-package com.example.a1basic
-
+package com.example.a1enhanced
 import javafx.beans.InvalidationListener
 import javafx.beans.Observable
 
@@ -27,7 +26,10 @@ class Course(val id: String, var name: String, var term: String, var grade: Stri
 }
 
 
-//var curSort: String = "Course Code"
+class CourseException(var idValid: Boolean = true, var termValid: Boolean = true, var gradeValid: Boolean = true): Exception()
+
+
+
 
 class Model: Observable {
     /////////////////////////////////////////  ALL LISTENER INFORMATION //////////////////////////////////////////////
@@ -40,20 +42,27 @@ class Model: Observable {
     }
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    //private var courses = mutableMapOf<String, Course>()
-    private var courses = mutableMapOf<String, Course>("CS135" to Course("CS135", "", "F21", "wd"),
+    private var courses = mutableMapOf<String, Course>()
+    /*private var courses = mutableMapOf<String, Course>("CS135" to Course("CS135", "", "F21", "wd"),
                                                         "BU111" to Course("BU111", "", "F21", "70"),
                                                         "EC120" to Course("EC120", "", "F20", "78"),
                                                         "PD1" to Course("PD1", "", "S23", "wd"),
                                                         "math 135" to Course("math 135", "", "W22", "12"),
                                                         "math 239" to Course("math 239", "", "W23", "wd"),
-                                                        "CO 350" to Course("CO 350", "", "F22", "90"))
+                                                        "CO 350" to Course("CO 350", "", "F22", "90"))*/
     private var curFilter: String = ""
     private var curWD: Boolean = true
+    private var courseCount = 0
+    private var gradeTotal = 0.0
+    private var failedCount = 0
+    private var numOfWDs = 0
+    private var cumGPA = 0.0
 
 
     // updates the data of "id" in courses map
     fun updateCourse(id: String, name: String, term: String, grade: String){
+
+
         if(grade.uppercase() == "WD" || grade.toInt() in 0..100){
             courses[id]!!.name = name
             courses[id]!!.term = term
@@ -96,6 +105,28 @@ class Model: Observable {
                     (it.key.length >= 4 && it.key.substring(0, 4).lowercase() == "stat")) }
         }
 
+        courseCount = 0
+        gradeTotal = 0.0
+        failedCount = 0
+        numOfWDs = 0
+        cumGPA = 0.0
+
+        courses.forEach{
+            if(it.value.show) {
+                if (it.value.grade.uppercase() != "WD") {
+                    if (it.value.grade.toInt() < 50) {
+                        failedCount++
+                    }
+
+                    cumGPA += findGPA(it.value.grade.toInt())
+                    courseCount++
+                    gradeTotal += it.value.grade.toDouble()
+                } else {
+                    numOfWDs++
+                }
+            }
+        }
+
 
         listeners.forEach{it?.invalidated(this)}
     }
@@ -103,18 +134,38 @@ class Model: Observable {
     // deletes course with course id "id"
     fun removeCourse(id: String){
         courses.remove(id)
+        sortCourse(Course.curSort, curFilter, curWD)
         listeners.forEach{it?.invalidated(this)}
     }
 
 
     // adds course to course array, sorts and filters, then updates display
     fun addCourse(id: String, name: String, term: String, grade: String) {
-        if(id != "" && (grade.uppercase() == "WD" || grade.toInt() in 0..100)) {
+        var isProblem = false
+        val exc = CourseException()
+
+        if(id == "") {
+            isProblem = true
+            exc.idValid = false
+        }
+
+        if (term == ""){
+            isProblem = true
+            exc.termValid = false
+        }
+
+        if(grade.uppercase() != "WD" && grade.toInt() !in 0..100){
+            // grade too small or big
+            isProblem = true
+            exc.gradeValid = false
+        }
+
+        if(isProblem){
+            throw exc
+        } else {
             courses[id] = Course(id, name, term, grade)
             sortCourse(Course.curSort, curFilter, curWD)
             listeners.forEach { it?.invalidated(this) }
-        } else {
-            throw Exception("Not valid id or grade")
         }
     }
 
@@ -127,6 +178,33 @@ class Model: Observable {
     fun setCurWD(newWD: Boolean) { curWD = newWD}
 
     fun getCurWD(): Boolean { return curWD }
+
+    fun getCourseCount(): Int { return courseCount}
+    fun getGradeTotal(): Double { return gradeTotal }
+    fun getFailedCount(): Int { return failedCount }
+    fun getNumOfWDs(): Int { return numOfWDs }
+    fun getCumGPA(): Double { return cumGPA}
+    private fun findGPA(g: Int): Double {
+        val ret: Double  = when (g) {
+            in 0..49 -> 0.0
+            in 50..52 -> 0.7
+            in 53..56 -> 1.0
+            in 57..59 -> 1.3
+            in 60..62 -> 1.7
+            in 63..66 -> 2.0
+            in 67..69 -> 2.3
+            in 70..72 -> 2.7
+            in 73 .. 76 -> 3.0
+            in 77..79 -> 3.3
+            in 80..84-> 3.7
+            in 85..89 -> 3.9
+            else -> 4.0
+        }
+        return ret
+
+    }
+
+
 
 
 
